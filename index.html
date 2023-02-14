@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>To do app</title>
+</head>
+<body>
+    <input id="user_input" type="text"></input>
+    <input id="date" type="date"></input>
+    <button onclick = "addtodo()">Add to the list</button>
+    <div id="list"></div>
+    <script>
+        //            Model                
+        let todolist;
+        const savedata = JSON.parse(localStorage.getItem("savedata")); // Here localstorage.getitem will get previousdata and json.parse will change data from string to array
+        if(Array.isArray(savedata)){
+            //check if savedata has array if it does it has previous data and show previous data else show default data 
+            todolist = savedata;
+        }
+        else{
+                todolist =  [{title : "go home", Due_date : "2022-1-16", id : "id1"} 
+                            ,{title : "make food", Due_date : "2022-1-16", id : "id2"},
+                            {title : "eat", Due_date : "2022-1-16" , id : "id3"}]; // We are creating a array of objects here
+        }
+         
+        function createtodo(addtitle,due_date){
+            // this function will generate an id and will push new value to todolist. It will run after addtodo() so first look at addtodo function
+            const id = " " + new Date().getTime(); //  new Date().getTime() will give current time in milisecond and we are using this as id because current time is always unique
+            // Here the " " part will convert the number to string we are doing this to make sure that all the id are in string because when will take id and and add it in buttonid in html it will be in string
+            todolist.push({title : addtitle, Due_date : due_date, id : id}); // this will push users value to todolist 
+            save(); // save is called because data has been changed here so you have to save it
+        }
+        function removetodo(buttonid){
+            todolist = todolist.filter(function(todo){ // filter method is just like for each method and it will also loop the code for each elemeent of the array but remove the element if the return is false
+                // if the id matches buttonid return false to delete element from array
+                if ( todo.id === buttonid){
+                    console.log (buttonid);
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            });  
+            save(); // save is called because data has been changed here so you have to save it
+        }
+
+        function save(){
+            localStorage.setItem("savedata",JSON.stringify(todolist));
+            // This will save data
+        }
+        
+        //                    View
+        
+        function showlist(){
+            document.getElementById("list").innerHTML = " ";
+            todolist.forEach(function(todo){ // this will create a loop for each value of todolist
+                const delete_button = document.createElement("button");
+                delete_button.innerHTML = "delete";
+                delete_button.style = "margin-left: 12px";
+                delete_button.id = todo.id; // here delete_button id is id of button in html while todo.id is id of todolist given by us. We are makin id of button todolist.id 
+                delete_button.onclick = delete_list; // This works as on click feature in html buttons
+                let element = document.createElement("div");
+                element.innerHTML = todo.title + " " + todo.Due_date;
+                let list = document.getElementById("list");
+                list.appendChild(element);
+                element.appendChild(delete_button);
+            });
+        }
+        showlist(); // Here you have to run show list once to make sure the function runs for the first time
+
+        //               Controller
+        
+        function addtodo(){
+            // This function is to take users input and add it to the list
+            let input = document.getElementById("user_input"); // This will pul value from user through html
+            const datepicker = document.getElementById("date");
+            const due_date = datepicker.value; // This will put value of input to due_date
+            let addtitle = input.value; //this will put value of input to add todo
+            // Here we used let in some variable and const in other. if you use let you can change the value later but if you use const the value will remain same forever
+            createtodo(addtitle,due_date);
+            showlist(); // you have to run show list to show updated list instead of original list
+        }
+
+        function delete_list(event){ // Look at note copy to know about events in details
+            console.log(event);
+            const button = event.target // This will put THE BUTTON in variable button
+            const buttonid = button.id;
+            removetodo(buttonid);
+            showlist(); // We need to call show list to make sure that the new list with deleted part will show
+        }
+    </script>
+</body>
+</html>
